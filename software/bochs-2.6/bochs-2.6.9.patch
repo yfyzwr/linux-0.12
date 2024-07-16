@@ -1,0 +1,14 @@
+diff -uNr bochs-2.6.9/gdbstub.cc bochs-2.6.9-custom/gdbstub.cc
+--- bochs-2.6.9/gdbstub.cc	2017-03-07 05:30:05.467768000 +0800
++++ bochs-2.6.9-custom/gdbstub.cc	2024-07-16 14:20:37.567184642 +0800
+@@ -489,6 +489,10 @@
+         {
+           write_signal(&buf[1], SIGTRAP);
+         }
++        else if (last_stop_reason == GDBSTUB_STOP_NO_REASON)
++        {
++          write_signal(&buf[1], SIGSEGV);
++        }
+         else
+         {
+           write_signal(&buf[1], 0);

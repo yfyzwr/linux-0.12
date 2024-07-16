@@ -82,7 +82,7 @@ bochs_install(){
     fi
 
     if [ -d "bochs-2.6.9" ];then
-        cp gdbstub.cc bochs-2.6.9/ && cd bochs-2.6.9/
+        patch -p0 < bochs-2.6.9.patch && cd bochs-2.6.9/
         
         if [ "$1" ] && [ "$1" = "-d" ];then
         sudo apt-get install aptitude && sudo aptitude install libgtk2.0-dev
