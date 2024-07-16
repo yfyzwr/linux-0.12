@@ -26,7 +26,7 @@ env_install(){
         return
     fi
 
-    GCC_DIR="gcc-3.4"
+    GCC_DIR="../../software/gcc-3.4"
 
     DOWNLOAD_LIST=(
         "gcc-3.4-base_3.4.6-6ubuntu3_amd64.deb"
@@ -35,15 +35,17 @@ env_install(){
         "g++-3.4_3.4.6-6ubuntu3_amd64.deb"
         "libstdc++6-dev_3.4.6-6ubuntu3_amd64.deb"
     )
-
+    
+    pushd $GCC_DIR
+    
     if [ -z `which gcc-3.4` ]; then
         _echo_info "Start installing gcc-3.4..."
-        for deb in ${DOWNLOAD_LIST[*]}; do
-            if [ ! -e ${GCC_DIR}/${deb} ]; then
-                wget http://old-releases.ubuntu.com/ubuntu/pool/universe/g/gcc-3.4/${deb} -P ${GCC_DIR} -q --show-progress && \
-                _echo_info "Download ${deb} Sucessfully." || ( rm ${deb} & _echo_err "Download ${deb} unsuccessfully!!!" )
-            fi
-        done
+        #for deb in ${DOWNLOAD_LIST[*]}; do
+        #    if [ ! -e ${GCC_DIR}/${deb} ]; then
+        #        wget http://old-releases.ubuntu.com/ubuntu/pool/universe/g/gcc-3.4/${deb} -P ${GCC_DIR} -q --show-progress && \
+        #        _echo_info "Download ${deb} Sucessfully." || ( rm ${deb} & _echo_err "Download ${deb} unsuccessfully!!!" )
+        #    fi
+        #done
         sudo dpkg -i ${GCC_DIR}/*.deb &> /dev/null
         sudo apt-get install -y -f &> /dev/null
         if [ ! -z `which gcc-3.4` ];then
@@ -51,6 +53,8 @@ env_install(){
         fi
         rm -rf ${GCC_DIR}
     fi
+    
+    popd
 }
 
 bochs_install(){
@@ -63,10 +67,13 @@ bochs_install(){
     sudo apt-get install -y build-essential &> /dev/null
     sudo apt-get install -y bochs bochs-x bochs-sdl &> /dev/null
     
-    if [ ! -e "bochs-2.6.9.tar.gz" ]; then
-        wget https://downloads.sourceforge.net/project/bochs/bochs/2.6.9/bochs-2.6.9.tar.gz -q --show-progress  && \
-        _echo_succ "Download bochs-2.6.9.tar.gz Sucessfully." || (rm bochs-2.6.9.tar.gz & _echo_err "Download bochs-2.6.9.tar.gz unsuccessfully!!!" )
-    fi
+    BOCHS_DIR="../../software/bochs-2.6"
+    pushd $BOCHS_DIR
+    
+    #if [ ! -e "bochs-2.6.9.tar.gz" ]; then
+    #    wget https://downloads.sourceforge.net/project/bochs/bochs/2.6.9/bochs-2.6.9.tar.gz -q --show-progress  && \
+    #    _echo_succ "Download bochs-2.6.9.tar.gz Sucessfully." || (rm bochs-2.6.9.tar.gz & _echo_err "Download bochs-2.6.9.tar.gz unsuccessfully!!!" )
+    #fi
 
     if [ ! -d "bochs-2.6.9" ];then
         tar zxvf bochs-2.6.9.tar.gz &> /dev/null && \
@@ -75,18 +82,22 @@ bochs_install(){
     fi
 
     if [ -d "bochs-2.6.9" ];then
-        cd bochs-2.6.9
+        cp gdbstub.cc bochs-2.6.9/ && cd bochs-2.6.9/
+        
         if [ "$1" ] && [ "$1" = "-d" ];then
         sudo apt-get install aptitude && sudo aptitude install libgtk2.0-dev
         ./configure --enable-gdb-stub --enable-disasm 
         # ./configure --enable-debugger --enable-disasm
-        make  && (cp bochs ../bochs-gdb & _echo_succ "make bochs sucessfully.") || _echo_err "make bochs unsucessfully.!!!"
+        make  && (cp bochs ../../../oslab/bochs/bochs-gdb & _echo_succ "make bochs sucessfully.") || _echo_err "make bochs unsucessfully.!!!"
         else
         ./configure --enable-gdb-stub --enable-disasm &> /dev/null
-        make &> /dev/null && (cp bochs ../bochs-gdb & _echo_succ "make bochs sucessfully.") || _echo_err "make bochs unsucessfully.!!!"
+        make &> /dev/null && (cp bochs ../../../oslab/bochs/bochs-gdb & _echo_succ "make bochs sucessfully.") || _echo_err "make bochs unsucessfully.!!!"
         fi
+        
+        cd .. && rm -fr bochs-2.6.9/
     fi
-
+    
+    popd
 }
 
 trap 'onCtrlC' INT
